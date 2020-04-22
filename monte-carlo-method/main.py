@@ -1,9 +1,9 @@
 import math
 import numpy as np
 
-from derivatives import first_derivative
+from differentiation.derivatives import first_derivative
 from parametric_line import create_parametric_line
-from simpsons_rule import integrate_by_parabolas
+from integration.simpsons_rule import integrate_by_parabolas
 
 x_fn = math.cos
 y_fn = math.sin
