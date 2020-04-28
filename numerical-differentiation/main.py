@@ -42,29 +42,50 @@ def process_function(_args):
     diff_2 = SecondDerivative(val_table, step)
     diff_3 = ThirdDerivative(val_table, step)
 
+    d_1_real = [first_derivative(x) for x in arg_table]
+    d_2_real = [second_derivative(x) for x in arg_table]
+    d_3_real = [third_derivative(x) for x in arg_table]
+
+    d_1_numerical = [diff_1(i) for i in range(0, len(arg_table))]
+    d_2_numerical = [diff_2(i) for i in range(0, len(arg_table))]
+    d_3_numerical = [diff_3(i) for i in range(0, len(arg_table))]
+
+    # Assertions
+    for i in range(0, len(arg_table)):
+        first_second_step = (step if i == 0 or i == len(arg_table) - 1 else step ** 2) * 10
+        third_step = (step ** 2 if 1 < i < len(arg_table) - 2 else step) * 10
+
+        assert abs(d_1_real[i] - d_1_numerical[i]) < first_second_step
+        assert abs(d_2_real[i] - d_2_numerical[i]) < first_second_step
+        assert abs(d_3_real[i] - d_3_numerical[i]) < third_step
+
     table = PrettyTable([
         'x',
         'f(x)',
         'f\'(x)',
         'f\'(x) (numerical)',
+        'Δ\'',
         'f\'\'(x)',
         'f\'\'(x) (numerical)',
+        'Δ\'\'',
         'f\'\'\'(x)',
-        'f\'\'\'(x) (numerical)'
+        'f\'\'\'(x) (numerical)',
+        'Δ\'\'\''
     ])
 
     for i in range(0, len(arg_table)):
-        x = arg_table[i]
-
         table.add_row([
-            x,
+            arg_table[i],
             val_table[i],
-            first_derivative(x),
-            diff_1(i),
-            second_derivative(x),
-            diff_2(i),
-            third_derivative(x),
-            diff_3(i)
+            d_1_real[i],
+            d_1_numerical[i],
+            abs(d_1_real[i] - d_1_numerical[i]),
+            d_2_real[i],
+            d_2_numerical[i],
+            abs(d_2_real[i] - d_2_numerical[i]),
+            d_3_real[i],
+            d_3_numerical[i],
+            abs(d_3_real[i] - d_3_numerical[i])
         ])
 
     print(table)
