@@ -80,8 +80,8 @@ class ThirdDerivative(Derivative):
         for i in range(2, self._count - 2):
             self._derivatives.append(self.central(i))
 
-        self._derivatives.append(self.backward(self._count - 1))
         self._derivatives.append(self.backward(self._count - 2))
+        self._derivatives.append(self.backward(self._count - 1))
 
     def forward(self, i):
         return (self._values[i + 3] - 3 * self._values[i + 2] + 3 * self._values[i + 1] - self._values[i]) / (
