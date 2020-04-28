@@ -11,6 +11,7 @@ from utils import wrap_code
 
 
 def process_function(_args):
+    # Parse YAML file with input data
     with open(_args.source, 'r') as stream:
         try:
             config = yaml.safe_load(stream)
@@ -18,8 +19,10 @@ def process_function(_args):
             print(e)
             return
 
+    # Modules required by Python expressions in assignments
     modules = ['math']
 
+    # Store YAML data in variables
     fun = wrap_code(config.get('fun', ''), modules)
 
     derivatives = config.get('derivatives', {})
@@ -37,21 +40,26 @@ def process_function(_args):
     if inclusive:
         b += step
 
+    # Calculate x and f(x) on domain
     arg_table = list(np.arange(a, b, step))
     val_table = list(map(fun, arg_table))
 
+    # Declare numerical derivatives
     diff_1 = FirstDerivative(val_table, step)
     diff_2 = SecondDerivative(val_table, step)
     diff_3 = ThirdDerivative(val_table, step)
 
+    # Calculate derivatives from symbolic reduction
     d_1_real = [first_derivative(x) for x in arg_table]
     d_2_real = [second_derivative(x) for x in arg_table]
     d_3_real = [third_derivative(x) for x in arg_table]
 
+    # Calculate derivatives numerically
     d_1_numerical = [diff_1(i) for i in range(0, len(arg_table))]
     d_2_numerical = [diff_2(i) for i in range(0, len(arg_table))]
     d_3_numerical = [diff_3(i) for i in range(0, len(arg_table))]
 
+    # Init table with given columns
     table = PrettyTable([
         'x',
         'f(x)',
@@ -66,6 +74,7 @@ def process_function(_args):
         'Δ\'\'\''
     ])
 
+    # Fill table with rows
     for i in range(0, len(arg_table)):
         table.add_row([
             arg_table[i],
@@ -111,10 +120,12 @@ def process_sensitivity(_args):
     if inclusive:
         b += step
 
+    # Store additional YAML parameters in variables
     perturbation = config.get('perturbation', {})
     delta = wrap_code(str(perturbation.get('delta', 0)), modules)(0)
 
     arg_table = list(np.arange(a, b, step))
+    # Calculate f(x) with given offset on domain
     val_table = list(map(lambda x: fun(x) + random.uniform(-delta, delta), arg_table))
 
     diff_1 = FirstDerivative(val_table, step)
