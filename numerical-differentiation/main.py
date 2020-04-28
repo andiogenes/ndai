@@ -43,19 +43,21 @@ def process_function(_args):
     diff_3 = ThirdDerivative(val_table, step)
 
     table = PrettyTable([
-        'fun',
-        'f\'',
-        'f\' (numerical)',
-        'f\'\'',
-        'f\'\' (numerical)',
-        'f\'\'\'',
-        'f\'\'\' (numerical)'
+        'x',
+        'f(x)',
+        'f\'(x)',
+        'f\'(x) (numerical)',
+        'f\'\'(x)',
+        'f\'\'(x) (numerical)',
+        'f\'\'\'(x)',
+        'f\'\'\'(x) (numerical)'
     ])
 
     for i in range(0, len(arg_table)):
         x = arg_table[i]
 
         table.add_row([
+            x,
             val_table[i],
             first_derivative(x),
             diff_1(i),
