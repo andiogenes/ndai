@@ -61,12 +61,15 @@ def process_function(_args):
         assert abs(d_2_real[i] - d_2_numerical[i]) < first_second_step
         assert abs(d_3_real[i] - d_3_numerical[i]) < third_step
 
-    table = PrettyTable([
+    table_1 = PrettyTable([
         'x',
         'f(x)',
         'f\'(x)',
         'f\'(x) (numerical)',
-        'Δ\'',
+        'Δ\''
+    ])
+
+    table_2 = PrettyTable([
         'f\'\'(x)',
         'f\'\'(x) (numerical)',
         'Δ\'\'',
@@ -76,12 +79,15 @@ def process_function(_args):
     ])
 
     for i in range(0, len(arg_table)):
-        table.add_row([
+        table_1.add_row([
             arg_table[i],
             val_table[i],
             d_1_real[i],
             d_1_numerical[i],
-            abs(d_1_real[i] - d_1_numerical[i]),
+            abs(d_1_real[i] - d_1_numerical[i])
+        ])
+
+        table_2.add_row([
             d_2_real[i],
             d_2_numerical[i],
             abs(d_2_real[i] - d_2_numerical[i]),
@@ -90,7 +96,8 @@ def process_function(_args):
             abs(d_3_real[i] - d_3_numerical[i])
         ])
 
-    print(table)
+    print(table_1)
+    print(table_2)
 
 
 def process_sensitivity(_args):
@@ -138,12 +145,15 @@ def process_sensitivity(_args):
     d_2_numerical = [diff_2(i) for i in range(0, len(arg_table))]
     d_3_numerical = [diff_3(i) for i in range(0, len(arg_table))]
 
-    table = PrettyTable([
+    table_1 = PrettyTable([
         'x',
         'f(x)',
         'f\'(x)',
         'f\'(x) (numerical)',
-        'Δ\'',
+        'Δ\''
+    ])
+
+    table_2 = PrettyTable([
         'f\'\'(x)',
         'f\'\'(x) (numerical)',
         'Δ\'\'',
@@ -153,12 +163,15 @@ def process_sensitivity(_args):
     ])
 
     for i in range(0, len(arg_table)):
-        table.add_row([
+        table_1.add_row([
             arg_table[i],
             val_table[i],
             d_1_real[i],
             d_1_numerical[i],
-            abs(d_1_real[i] - d_1_numerical[i]),
+            abs(d_1_real[i] - d_1_numerical[i])
+        ])
+
+        table_2.add_row([
             d_2_real[i],
             d_2_numerical[i],
             abs(d_2_real[i] - d_2_numerical[i]),
@@ -167,7 +180,8 @@ def process_sensitivity(_args):
             abs(d_3_real[i] - d_3_numerical[i])
         ])
 
-    print(table)
+    print(table_1)
+    print(table_2)
 
 
 def parse_command_line():
