@@ -20,4 +20,7 @@ def wrap_code(code, modules):
 
 
 def compute_or_null(x, action):
+    """
+    If x is None, returns none, otherwise, returns action(x)
+    """
     return action(x) if x is not None else None

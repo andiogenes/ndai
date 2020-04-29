@@ -1,4 +1,7 @@
 def partition(points):
+    """
+    Maps [x0,x1, ..., xn-1, xn] to [x0, x0.5, x1, x1.5, ..., xn-1.5, xn-1, xn-0.5, xn]
+    """
     partitioned_points = []
     for i in range(1, len(points)):
         mid = (points[i] + points[i - 1]) / 2
@@ -9,6 +12,9 @@ def partition(points):
 
 
 def calculate_grid(integral, points, a, b, eps):
+    """
+    Calculates optimal grid for given integral on a given original grid, with given precision.
+    """
     result_grid = []
 
     for i in range(1, len(points)):
