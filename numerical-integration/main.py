@@ -25,6 +25,7 @@ def process_integration(_args):
     # Modules required by Python expressions in assignments
     modules = ['math']
 
+    # Store YAML data n variables
     fun = wrap_code(str(config.get('fun', '')), modules)
     antiderivative = config.get('antiderivative', None)
 
@@ -40,6 +41,7 @@ def process_integration(_args):
     auto_estimation = estimation.get('auto', False)
     precision = wrap_code(str(estimation.get('precision', '0')), modules)(0)
 
+    # Bind method names to corresponding functions
     methods = {
         'midpoint': integrate_by_midpoints,
         'trapezoid': integrate_by_trapezoids,
@@ -48,55 +50,68 @@ def process_integration(_args):
 
     points = np.arange(a, b + step, step)
 
-    ad_fun = compute_or_null(antiderivative, lambda x: wrap_code(x, modules))
-    correct_integral = compute_or_null(ad_fun, lambda x: x(b) - x(a))
+    # Compile antiderivative to bytecode if it isn't None and compute a correct integral
+    antiderivative_fun = compute_or_null(antiderivative, lambda x: wrap_code(x, modules))
+    correct_integral = compute_or_null(antiderivative_fun, lambda x: x(b) - x(a))
 
     if auto_estimation:
+        # Computations with automatic step
         table = PrettyTable(['method', 'eps', 'uniform steps count', 'steps count', 'correct', 'approximate', 'delta'])
 
-        def fill_table(_method_name, _method_fun):
+        def append_row(_method_name, _method_fun):
+            # Bind f(x) to quadrature
             method_integral = partial(_method_fun, fun)
+
+            # Compute optimal grid for given integral with given precision
             grid = calculate_grid(method_integral, points, a, b, precision)
 
+            # Compute integral numerically
             approximate_integral = _method_fun(fun, grid)
 
+            # Add row to the table
             table.add_row([
-                _method_name,
-                precision,
-                len(points)-1,
-                len(grid)-1,
-                correct_integral,
-                approximate_integral,
-                compute_or_null(correct_integral, lambda x: abs(x - approximate_integral))
+                _method_name,  # Method of integration
+                precision,  # Precision of table
+                len(points) - 1,  # Count of segments in original grid
+                len(grid) - 1,  # Count of segments in optimal grid
+                correct_integral,  # Correct value of integral
+                approximate_integral,  # Approximate value of integral
+                compute_or_null(correct_integral, lambda x: abs(x - approximate_integral))  # | correct - approx |
             ])
 
         if method == 'all':
+            # Calculate report for all methods
             for m in methods:
-                fill_table(m, methods[m])
+                append_row(m, methods[m])
         else:
-            fill_table(method, methods[method])
+            # Calculate report for one method
+            append_row(method, methods[method])
 
         print(table)
 
     else:
+        # Computation with constant step
         table = PrettyTable(['method', 'step', 'correct', 'approximate', 'delta'])
 
-        def fill_table(_method_name, _method_fun):
+        def append_row(_method_name, _method_fun):
+            # Compute integral numerically
             approximate_integral = _method_fun(fun, points)
 
             table.add_row([
-                _method_name,
-                step,
-                correct_integral,
-                approximate_integral,
-                compute_or_null(correct_integral, lambda x: abs(x - approximate_integral))
+                _method_name,  # Method of integration
+                step,  # Grid step
+                correct_integral,  # Correct value of integral
+                approximate_integral,  # Approximate value of integral
+                compute_or_null(correct_integral, lambda x: abs(x - approximate_integral))  # |correct - approx |
             ])
 
         if method == 'all':
+            # Calculate reports for all methods
             for m in methods:
-                fill_table(m, methods[m])
+                append_row(m, methods[m])
         else:
-            fill_table(method, methods[method])
+            # Calculate report for one method
+            append_row(method, methods[method])
 
         print(table)
 
