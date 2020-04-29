@@ -6,15 +6,15 @@ antiderivative: -math.cos(x)
 # Область интегрирования
 domain:
   a: 0
-  b: math.pi/2
+  b: math.pi
 integration:
-  # Метод интегрирования: midpoint | trapezoid | simpson
-  method: simpson
+  # Метод интегрирования: midpoint | trapezoid | simpson | all
+  method: all
   # Шаг интегрирования
-  step: math.pi/20
+  step: 0.01
   # Настройки оценки шага интегрирования
   estimation:
     # true - автоподбор шага, false - постоянный шаг
-    auto: false
+    auto: true
     # необходимая точность оценки
-    precision: 0.001
+    precision: 0.0001

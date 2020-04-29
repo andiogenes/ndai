@@ -17,3 +17,7 @@ def wrap_code(code, modules):
         return eval(func_bytecode, env, {'x': x})
 
     return func
+
+
+def compute_or_null(x, action):
+    return action(x) if x is not None else None

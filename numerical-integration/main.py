@@ -1,14 +1,16 @@
 import argparse
+from functools import partial
 
 import numpy as np
 import yaml
 from prettytable import PrettyTable
 
 from rectangle_rule import integrate_by_midpoints
+from runge_estimation import calculate_grid
 from simpsons_rule import integrate_by_parabolas
 from trapezoidal_rule import integrate_by_trapezoids
 
-from utils import wrap_code
+from utils import wrap_code, compute_or_null
 
 
 def process_integration(_args):
@@ -44,26 +46,57 @@ def process_integration(_args):
         'simpson': integrate_by_parabolas
     }
 
-    method_fun = methods[method]
+    points = np.arange(a, b + step, step)
+
+    ad_fun = compute_or_null(antiderivative, lambda x: wrap_code(x, modules))
+    correct_integral = compute_or_null(ad_fun, lambda x: x(b) - x(a))
 
     if auto_estimation:
-        pass
+        table = PrettyTable(['method', 'eps', 'uniform steps count', 'steps count', 'correct', 'approximate', 'delta'])
+
+        def fill_table(_method_name, _method_fun):
+            method_integral = partial(_method_fun, fun)
+            grid = calculate_grid(method_integral, points, a, b, precision)
+
+            approximate_integral = _method_fun(fun, grid)
+
+            table.add_row([
+                _method_name,
+                precision,
+                len(points)-1,
+                len(grid)-1,
+                correct_integral,
+                approximate_integral,
+                compute_or_null(correct_integral, lambda x: abs(x - approximate_integral))
+            ])
+
+        if method == 'all':
+            for m in methods:
+                fill_table(m, methods[m])
+        else:
+            fill_table(method, methods[method])
+
+        print(table)
+
     else:
-        points = np.arange(a, b + step, step)
-
-        ad_fun = wrap_code(antiderivative, modules) if antiderivative is not None else None
-        correct_integral = ad_fun(b) - ad_fun(a) if ad_fun is not None else None
-
-        approximate_integral = method_fun(fun, points)
-
         table = PrettyTable(['method', 'step', 'correct', 'approximate', 'delta'])
-        table.add_row([
-            method,
-            step,
-            correct_integral,
-            approximate_integral,
-            abs(correct_integral-approximate_integral) if correct_integral is not None else None
-        ])
+
+        def fill_table(_method_name, _method_fun):
+            approximate_integral = _method_fun(fun, points)
+
+            table.add_row([
+                _method_name,
+                step,
+                correct_integral,
+                approximate_integral,
+                compute_or_null(correct_integral, lambda x: abs(x - approximate_integral))
+            ])
+
+        if method == 'all':
+            for m in methods:
+                fill_table(m, methods[m])
+        else:
+            fill_table(method, methods[method])
 
         print(table)
 

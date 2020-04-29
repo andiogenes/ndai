@@ -1,11 +1,3 @@
-from functools import partial
-from rectangle_rule import integrate_by_midpoints
-from trapezoidal_rule import integrate_by_trapezoids
-from simpsons_rule import integrate_by_parabolas
-import math
-import numpy as np
-
-
 def partition(points):
     partitioned_points = []
     for i in range(1, len(points)):
@@ -16,8 +8,7 @@ def partition(points):
     return partitioned_points
 
 
-def calculate_grid(integral, a, b, eps):
-    points = list(np.linspace(a, b))
+def calculate_grid(integral, points, a, b, eps):
     result_grid = []
 
     for i in range(1, len(points)):
@@ -48,8 +39,3 @@ def calculate_grid(integral, a, b, eps):
     return result_grid
 
 
-sin_integral = partial(integrate_by_midpoints, math.sin)
-
-poinz = calculate_grid(sin_integral, 0, math.pi, 0.0001)
-
-print(sin_integral(poinz), sin_integral(np.linspace(0, math.pi)))
