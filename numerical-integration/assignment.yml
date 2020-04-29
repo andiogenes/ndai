@@ -1,0 +1,20 @@
+# Интегрируемая функция
+fun: math.sin(x)
+# Первообразная функции для вычисления интеграла по формуле Ньютона-Лейбница
+# Если None - первообразная не задана
+antiderivative: -math.cos(x)
+# Область интегрирования
+domain:
+  a: 0
+  b: math.pi/2
+integration:
+  # Метод интегрирования: midpoint | trapezoid | simpson
+  method: simpson
+  # Шаг интегрирования
+  step: math.pi/20
+  # Настройки оценки шага интегрирования
+  estimation:
+    # true - автоподбор шага, false - постоянный шаг
+    auto: false
+    # необходимая точность оценки
+    precision: 0.001
