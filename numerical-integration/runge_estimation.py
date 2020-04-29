@@ -43,5 +43,3 @@ def calculate_grid(integral, points, a, b, eps):
         result_grid.extend(partitioned)
 
     return result_grid
-
-
