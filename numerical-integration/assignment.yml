@@ -5,16 +5,16 @@ fun: math.sin(x)
 antiderivative: -math.cos(x)
 # Область интегрирования
 domain:
-  a: -math.pi
+  a: 0
   b: math.pi
 integration:
   # Метод интегрирования: midpoint | trapezoid | simpson | all
   method: all
   # Шаг интегрирования
-  step: math.pi/2
+  step: math.pi
   # Настройки оценки шага интегрирования
   estimation:
     # true - автоподбор шага, false - постоянный шаг
-    auto: false
+    auto: true
     # необходимая точность оценки
     precision: 0.0001

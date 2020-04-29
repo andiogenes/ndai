@@ -11,9 +11,9 @@ def partition(points):
     return partitioned_points
 
 
-def calculate_grid(integral, points, a, b, eps):
+def calculate_grid(integral, points, a, b, eps, order):
     """
-    Calculates optimal grid for given integral on a given original grid, with given precision.
+    Calculates optimal grid for given integral on a given original grid, with given precision and precision order.
     """
     result_grid = []
 
@@ -29,11 +29,12 @@ def calculate_grid(integral, points, a, b, eps):
         while True:
             integrated_partition = integral(partitioned_estimation)
 
-            if abs(integrated_segment - integrated_partition) <= (eps * h) / (b - a):
+            if abs(integrated_segment - integrated_partition) / (2 ** order - 1) <= (eps * h) / (b - a):
                 break
             else:
                 partitioned = partitioned_estimation
                 partitioned_estimation = partition(partitioned_estimation)
+                h = h / 2
 
                 integrated_segment = integrated_partition
 

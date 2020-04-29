@@ -48,6 +48,13 @@ def process_integration(_args):
         'simpson': integrate_by_parabolas
     }
 
+    # Bind method names to precision order
+    precision_order = {
+        'midpoint': 2,
+        'trapezoid': 2,
+        'simpson': 4
+    }
+
     points = np.arange(a, b + step, step)
 
     # Compile antiderivative to bytecode if it isn't None and compute a correct integral
@@ -56,14 +63,22 @@ def process_integration(_args):
 
     if auto_estimation:
         # Computations with automatic step
-        table = PrettyTable(['method', 'eps', 'uniform steps count', 'steps count', 'correct', 'approximate', 'delta'])
+        table = PrettyTable([
+            'method',
+            'eps',
+            'uniform steps count',
+            'steps count',
+            'correct',
+            'approximate',
+            'delta'
+        ])
 
         def append_row(_method_name, _method_fun):
             # Bind f(x) to quadrature
             method_integral = partial(_method_fun, fun)
 
             # Compute optimal grid for given integral with given precision
-            grid = calculate_grid(method_integral, points, a, b, precision)
+            grid = calculate_grid(method_integral, points, a, b, precision, precision_order[_method_name])
 
             # Compute integral numerically
             approximate_integral = _method_fun(fun, grid)
