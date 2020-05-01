@@ -1,20 +1,20 @@
 # Интегрируемая функция
-fun: math.sin(x)
+fun: math.exp(-(x**2)/2)/math.sqrt(2*math.pi)
 # Первообразная функции для вычисления интеграла по формуле Ньютона-Лейбница
 # Если выражение отсутствует - первообразная не задана
-antiderivative: -math.cos(x)
+antiderivative:
 # Область интегрирования
 domain:
-  a: 0
-  b: math.pi
+  a: 7
+  b: 8
 integration:
   # Метод интегрирования: midpoint | trapezoid | simpson | all
   method: all
   # Шаг интегрирования
-  step: math.pi
+  step: 0.1
   # Настройки оценки шага интегрирования
   estimation:
     # true - автоподбор шага, false - постоянный шаг
-    auto: true
+    auto: false
     # необходимая точность оценки
     precision: 0.0001
