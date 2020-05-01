@@ -1,12 +1,18 @@
 import random
 
 
-def integrate_by_monte_carlo(fn, points, count):
-    segment_length = points[len(points) - 1] - points[0]
+def integrate_by_monte_carlo(fn, a, b, count):
+    """
+    Computes integral by Monte Carlo method.
+    """
+    segment_length = b - a
+
+    points = []
 
     acc = 0
     for i in range(0, count):
-        u = points[random.randint(0, len(points) - 1)]
+        u = random.uniform(a, b)
         acc += fn(u)
+        points.append(u)
 
-    return (segment_length / count) * acc
+    return (segment_length / count) * acc, points

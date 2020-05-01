@@ -1,37 +1,92 @@
-import math
+import argparse
+
+import matplotlib.pyplot as plt
 import numpy as np
+import yaml
+from prettytable import PrettyTable
 
 from differentiation.derivatives import first_derivative
 from integration.monte_carlo_method import integrate_by_monte_carlo
-from parametric_line import create_parametric_line
 from integration.simpsons_rule import integrate_by_parabolas
+from spline import CubicSpline
+from utils import wrap_code
 
-x_fn = math.cos
-y_fn = math.sin
 
-circle = create_parametric_line(x_fn, y_fn)
-step = math.pi / 1000
+def process_integration(_args):
+    # Parse YAML file with input data
+    with open(_args.source, 'r') as stream:
+        try:
+            config = yaml.safe_load(stream)
+        except yaml.YAMLError as e:
+            print(e)
+            return
 
-param_points = list(np.arange(0, math.pi * 2 + step, step))
+    # Modules required by Python expressions in assignments
+    modules = ['math']
 
-x_derivative = first_derivative(x_fn, (0, math.pi * 2), step)
-y_derivative = first_derivative(y_fn, (0, math.pi * 2), step)
+    # Store YAML data in variables
+    fun = config.get('fun', {})
+    x_fun = wrap_code(str(fun.get('x', '')), modules, param='t')
+    y_fun = wrap_code(str(fun.get('y', '')), modules, param='t')
 
-ydx_integral = integrate_by_parabolas(lambda t: y_fn(t) * x_derivative(t), param_points)
-xdy_integral = integrate_by_parabolas(lambda t: x_fn(t) * y_derivative(t), param_points)
+    domain = config.get('domain', {})
+    a = wrap_code(str(domain.get('a', '0')), modules)(0)
+    b = wrap_code(str(domain.get('b', '0')), modules)(0)
 
-print(abs(ydx_integral), abs(xdy_integral))
+    differentiation = config.get('differentiation', {})
+    differentiation_step = wrap_code(str(differentiation.get('step', '0')), modules)(0)
 
-ydx_monte_carlo = integrate_by_monte_carlo(lambda t: y_fn(t) * x_derivative(t), param_points, 10000)
-xdy_monte_carlo = integrate_by_monte_carlo(lambda t: x_fn(t) * y_derivative(t), param_points, 10000)
+    simpson = config.get('simpson', {})
+    step = wrap_code(str(simpson.get('step', '0')), modules)(0)
 
-print(abs(ydx_monte_carlo), abs(xdy_monte_carlo), (abs(ydx_monte_carlo) + abs(xdy_monte_carlo))/2)
+    monte_carlo = config.get('monte_carlo', {})
+    count = wrap_code(str(monte_carlo.get('count', '0')), modules)(0)
 
-ydxs_est = (abs(abs(ydx_integral) - math.pi), 'ydx simpson')
-xdys_est = (abs(abs(xdy_integral) - math.pi), 'xdy simpson')
-ydxm_est = (abs(abs(ydx_monte_carlo) - math.pi), 'ydx monte carlo')
-xdym_est = (abs(abs(xdy_monte_carlo) - math.pi), 'xdy monte carlo')
-s_est = (abs((abs(ydx_integral) + abs(xdy_integral))/2 - math.pi), 'middle simpson')
-m_est = (abs((abs(ydx_monte_carlo) + abs(xdy_monte_carlo))/2 - math.pi), 'middle monte carlo')
+    # Compute first derivative of x(t)
+    x_dtv = first_derivative(x_fun, (a, b), differentiation_step)
 
-print(min(ydxs_est, xdys_est, ydxm_est, xdym_est, s_est, m_est, key=lambda v: v[0]))
+    t = np.linspace(a, b, num=100)
+    x = [x_fun(v) for v in t]
+    y = [y_fun(v) for v in t]
+
+    # Define splines for x(t), y(t)
+    x_spline = CubicSpline(zip(t, x))
+    y_spline = CubicSpline(zip(t, y))
+
+    plot_domain = np.linspace(min(t), max(t), num=1000)
+    plot_x_values = [x_spline(v) for v in plot_domain]
+    plot_y_values = [y_spline(v) for v in plot_domain]
+
+    # Plot region defined by x = x(t), y = y(t)
+    fig, ax = plt.subplots()
+    ax.fill(plot_x_values, plot_y_values, color='#0000ff88')
+    ax.grid()
+
+    # Calculate integrals
+    monte_carlo_integral, monte_carlo_points = integrate_by_monte_carlo(lambda _t: y_fun(_t) * x_dtv(_t), a, b, count)
+    simpson_integral = integrate_by_parabolas(lambda _t: y_fun(_t) * x_dtv(_t), np.arange(a, b + step, step))
+
+    table = PrettyTable(['Simpson', 'Monte-Carlo'])
+    table.add_row([abs(simpson_integral), abs(monte_carlo_integral)])
+    print(table)
+
+    # Scatter points from Monte Carlo method
+    ax.scatter([x_fun(t) for t in monte_carlo_points], [y_fun(t) for t in monte_carlo_points], 5, 'red')
+    plt.show()
+
+
+def parse_command_line():
+    __parser = argparse.ArgumentParser(description='')
+    __parser.add_argument('--source', dest='source', type=str, default='assignment.yml')
+    __parser.set_defaults(func=process_integration)
+
+    return __parser
+
+
+if __name__ == "__main__":
+    _parser = parse_command_line()
+    args = _parser.parse_args()
+    try:
+        args.func(args)
+    except AttributeError:
+        _parser.parse_args(['--help'])
