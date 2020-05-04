@@ -6,7 +6,8 @@ import yaml
 from prettytable import PrettyTable
 
 from differentiation.derivatives import first_derivative
-from integration.monte_carlo_method import integrate_by_monte_carlo
+from geometry import create_parametric_line
+from integration.monte_carlo_method import integrate_by_monte_carlo, integrate_by_monte_carlo_geometrically
 from integration.simpsons_rule import integrate_by_parabolas
 from spline import CubicSpline
 from utils import wrap_code
@@ -59,11 +60,15 @@ def process_integration(_args):
 
     # Plot region defined by x = x(t), y = y(t)
     fig, ax = plt.subplots()
-    ax.fill(plot_x_values, plot_y_values, color='#0000ff88')
+    ax.plot(plot_x_values, plot_y_values, color='green')
     ax.grid()
 
     # Calculate integrals
-    monte_carlo_integral, monte_carlo_points = integrate_by_monte_carlo(lambda _t: y_fun(_t) * x_dtv(_t), a, b, count)
+    line_fun = create_parametric_line(x_spline, y_spline)
+    contour = [line_fun(v) for v in np.linspace(a, b, num=1000)]
+
+    monte_carlo_integral, monte_carlo_points_in, monte_carlo_points_out \
+        = integrate_by_monte_carlo_geometrically(contour, count)
     simpson_integral = integrate_by_parabolas(lambda _t: y_fun(_t) * x_dtv(_t), np.arange(a, b + step, step))
 
     table = PrettyTable(['Simpson', 'Monte-Carlo'])
@@ -71,7 +76,8 @@ def process_integration(_args):
     print(table)
 
     # Scatter points from Monte Carlo method
-    ax.scatter([x_fun(t) for t in monte_carlo_points], [y_fun(t) for t in monte_carlo_points], 5, 'red')
+    ax.scatter([p[0] for p in monte_carlo_points_in], [p[1] for p in monte_carlo_points_in], 2, 'red')
+    ax.scatter([p[0] for p in monte_carlo_points_out], [p[1] for p in monte_carlo_points_out], 2, 'blue')
     plt.show()
 
 

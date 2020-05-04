@@ -1,9 +1,9 @@
 # Функция, задающая границу области
 fun:
   # x = x(t)
-  x: math.sin(t)
+  x: math.cos(t)*math.cos(6*t)
   # y = y(t)
-  y: math.cos(t)
+  y: math.sin(t)*math.cos(6*t)
 # [a,b] в котором меняется t
 domain:
   a: 0
